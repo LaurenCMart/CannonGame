@@ -1,0 +1,17 @@
+﻿Build started 23/01/2017 16:21:13.
+     1>Project "C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\CannonGameJam\CannonGameJam.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /ZI /nologo /W3 /WX- /Od /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt CannonGame.cpp
+         CannonGame.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\x64\Debug\CannonGameJam.exe" /INCREMENTAL /NOLOGO SDL2.lib SDL2main.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\x64\Debug\CannonGameJam.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\x64\Debug\CannonGameJam.lib" /MACHINE:X64 x64\Debug\CannonGame.obj
+         x64\Debug\Win32Platform.obj
+     1>MSVCRTD.lib(initializers.obj) : warning LNK4098: defaultlib 'msvcrt.lib' conflicts with use of other libs; use /NODEFAULTLIB:library
+     1>SDL2main.lib(SDL_windows_main.obj) : error LNK2019: unresolved external symbol __imp_fprintf referenced in function ShowError
+     1>SDL2main.lib(SDL_windows_main.obj) : error LNK2019: unresolved external symbol __imp___iob_func referenced in function ShowError
+     1>C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\x64\Debug\CannonGameJam.exe : fatal error LNK1120: 2 unresolved externals
+     1>Done Building Project "C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\CannonGameJam\CannonGameJam.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:02.27
