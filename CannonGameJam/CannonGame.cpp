@@ -13,10 +13,20 @@
 */
 
 #include "SDL.h"
+#include "SDLplatform.h"
 
-int main(int argc, char**argv)
+void initGame(GameState *game_state)
 {
-    SDL_ShowSimpleMessageBox(0, "Hello World", "Yer Maw", 0);
 
-    return 0;
 }
+
+void update_and_render(Controls controls, bool init, GameState *game_state)
+{
+    if(init)
+    {
+        initGame(game_state);
+    }
+
+
+}
+

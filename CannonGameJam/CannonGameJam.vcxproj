@@ -155,7 +155,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CannonGame.cpp" />
+    <ClCompile Include="SDLplatform.cpp" />
     <ClCompile Include="Win32Platform.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SDLplatform.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
