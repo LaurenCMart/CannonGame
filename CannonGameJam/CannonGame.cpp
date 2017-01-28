@@ -14,19 +14,83 @@
 
 #include "SDL.h"
 #include "SDLplatform.h"
+#include "assert.h"
 
-void initGame(GameState *game_state)
+void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface)
 {
+    // Ground Properties
+    game_state->ground.pos.x = 0;
+    game_state->ground.pos.y = 460;
+    game_state->ground.size.x = 640;
+    game_state->ground.size.y = 30;
+
+    // Cannon Base Properties
+    game_state->cannonBase.pos.x = 20;
+    game_state->cannonBase.pos.y = 420;
+    game_state->cannonBase.size.x = 30;
+    game_state->cannonBase.size.y = 40;
+
+    // Cannon Shaft Properties
+    game_state->cannonShaft.pos.x = 30;
+    game_state->cannonShaft.pos.y = 420;
+    game_state->cannonShaft.size.x = 60;
+    game_state->cannonShaft.size.y = 20;
+
+    game_state->pCannonShaft = LoadTexture("CannonShaft.bmp", pRenderer, pScreenSurface);
+    // Asserting if it was successfully created
+    assert(game_state->pCannonShaft);
+
 
 }
 
-void update_and_render(Controls controls, bool init, GameState *game_state)
+void update_and_render(Controls controls, bool init, GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface)
 {
     if(init)
     {
-        initGame(game_state);
+        initGame(game_state, pRenderer, pScreenSurface);
     }
 
+    if(controls.up)
+    {
+        game_state->angle -= 10;
+    }
+    else if(controls.down)
+    {
+        game_state->angle += 10;
+    }
 
+    if(game_state->angle < 270)
+    {
+        game_state->angle = 270;
+    }
+    else if(game_state->angle > 360)
+    {
+        game_state->angle = 360;
+    }
+
+    // Change BG colour
+    SDL_SetRenderDrawColor(pRenderer, 0x66, 0x00, 0x66, 0xFF);
+
+    // Clear Screen
+    SDL_RenderClear(pRenderer);
+
+    // Drawing Ground
+    SDL_Rect GroundRect = RectFromPositions(game_state->ground.pos, game_state->ground.size);
+    SDL_SetRenderDrawColor(pRenderer, 0xF9, 0xB8, 0x1F, 0xFF);
+    SDL_RenderFillRect(pRenderer, &GroundRect);
+
+    // Drawing Cannon Shaft
+    SDL_Rect cannonShaftRect = RectFromPositions(game_state->cannonShaft.pos, game_state->cannonShaft.size);
+    SDL_SetRenderDrawColor(pRenderer, 0xFF, 0x00, 0x00, 0xFF);
+    //SDL_RenderCopy(pRenderer, game_state->pCannonShaft, NULL, &cannonShaftRect);
+    
+    SDL_Point centerPt = {5.0f, 10.0f};
+    //float angle = 45.0f;
+    SDL_RenderCopyEx(pRenderer, game_state->pCannonShaft, NULL, &cannonShaftRect, game_state->angle, &centerPt, SDL_FLIP_NONE);
+
+    // Drawing Cannon Base
+    SDL_Rect cannonBaseRect = RectFromPositions(game_state->cannonBase.pos, game_state->cannonBase.size);
+    SDL_SetRenderDrawColor(pRenderer, 0xF9, 0x00, 0x1F, 0xFF);
+    SDL_RenderFillRect(pRenderer, &cannonBaseRect);
 }
 

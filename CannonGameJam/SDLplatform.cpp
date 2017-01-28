@@ -44,31 +44,6 @@ SDL_Surface *LoadImage(char *path, SDL_Surface *ScreenSurface)
     return optimizedSurface;
 }
 
-// Loading a Texture:
-SDL_Texture *LoadTexture(char *pFileName, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface)
-{
-    // pFileName: Pointer to the Filename of the Bitmap you're loading in
-    // pRenderer: Is a Pointer to the Renderer that renders the window
-    // pScreenSurface: Pointer to the part inside the window border
-
-    // Creates an SDL_Texture object called Result which points to NULL
-    SDL_Texture *Result = NULL;
-
-    // SurfaceResult is an SDL Surface Object that points to the result of the LoadImage function
-    // LoadImage function loads a bitmap
-    SDL_Surface *SurfaceResult = LoadImage(pFileName, pScreenSurface);
-
-    // Sets a bitmap background transparent
-    SDL_SetColorKey(SurfaceResult, SDL_TRUE, SDL_MapRGB(SurfaceResult->format, 0xFF, 0xFF, 0xFF));
-
-    // Passes the image data to the GPU and gets a handle to it
-    Result = SDL_CreateTextureFromSurface(pRenderer, SurfaceResult);
-
-    // Get rid of memory for loaded surface
-    SDL_FreeSurface(SurfaceResult);
-    return Result;
-}
-
 // Creating a messagebox
 bool displayWinMessageBox(const char *message, const char *title)
 {
@@ -97,6 +72,31 @@ SDL_Rect RectFromPositions(Vector2D Position, Vector2D Size)
     return Result;
 }
 
+// Loading a Texture:
+SDL_Texture *LoadTexture(char *pFileName, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface)
+{
+    // pFileName: Pointer to the Filename of the Bitmap you're loading in
+    // pRenderer: Is a Pointer to the Renderer that renders the window
+    // pScreenSurface: Pointer to the part inside the window border
+
+    // Creates an SDL_Texture object called Result which points to NULL
+    SDL_Texture *Result = NULL;
+
+    // SurfaceResult is an SDL Surface Object that points to the result of the LoadImage function
+    // LoadImage function loads a bitmap
+    SDL_Surface *SurfaceResult = LoadImage(pFileName, pScreenSurface);
+
+    // Sets a bitmap background transparent
+    SDL_SetColorKey(SurfaceResult, SDL_TRUE, SDL_MapRGB(SurfaceResult->format, 0xFF, 0xFF, 0xFF));
+
+    // Passes the image data to the GPU and gets a handle to it
+    Result = SDL_CreateTextureFromSurface(pRenderer, SurfaceResult);
+
+    // Get rid of memory for loaded surface
+    SDL_FreeSurface(SurfaceResult);
+    return Result;
+}
+
 // Tests whether two objects overlap
 bool TestOverlap(Vector2D Position1, Vector2D Size1, Vector2D Position2, Vector2D Size2)
 {
@@ -107,6 +107,37 @@ bool TestOverlap(Vector2D Position1, Vector2D Size1, Vector2D Position2, Vector2
                     return true;
 
     return false;
+}
+
+// Generates a random number between two values
+int RandomNumberGenerator(int Min, int Max)
+{
+    int result = (Min + (rand() % (Max - Min) + 1));
+
+    return result;
+}
+
+// Constructor function for a Ball
+Ball BallConstructor(int x, int y)
+{
+    Ball BallResult = {0};
+    BallResult.speed.x = RandomNumberGenerator(1, 4);
+    BallResult.speed.y = RandomNumberGenerator(1, 4);
+
+    if(BallResult.speed.y <= 1 && BallResult.speed.x >= -1)
+    {
+        BallResult.speed.x = 2;
+    }
+
+    if(BallResult.speed.y <= 1 && BallResult.speed.y >= -1)
+    {
+        BallResult.speed.y = 2;
+    }
+
+    BallResult.pos.x = x;
+    BallResult.pos.y = y;
+
+    return BallResult;
 }
 
 int main(int argc, char **argv)
@@ -121,7 +152,7 @@ int main(int argc, char **argv)
     else
     {
         // Creates a window
-        SDL_Window *Window = SDL_CreateWindow("Pong", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
+        SDL_Window *Window = SDL_CreateWindow("Cannon", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, SDL_WINDOW_SHOWN);
 
         if(!Window)
         {
@@ -149,6 +180,7 @@ int main(int argc, char **argv)
             }
             else
             {
+                memset(game_state, 0, sizeof(GameState));
                 game_state->running = true;
 
                 while(game_state->running)
@@ -250,8 +282,10 @@ int main(int argc, char **argv)
                         }
                     }
                     // Rendering
-                    update_and_render(controls, first_time, game_state);
+                    update_and_render(controls, first_time, game_state, pRenderer, pScreenSurface);
+                    SDL_UpdateWindowSurface(Window);
                     SDL_RenderPresent(pRenderer);
+                    
                     first_time = false;
 
                     // Fixing frame rate

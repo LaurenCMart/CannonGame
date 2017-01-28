@@ -20,7 +20,7 @@ struct Controls
 };
 
 struct GameState;
-void update_and_render(Controls controls, bool init, GameState *game_state);
+void update_and_render(Controls controls, bool init, GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface);
 
 struct Vector2D
 {
@@ -48,41 +48,35 @@ struct Ball
     Vector2D speed;
 };
 
-// Generates a random number between two values
-static int RandomNumberGenerator(int Min, int Max)
+struct Rect
 {
-    int result = (Min + (rand() % (Max - Min) + 1));
+    Vector2D pos;
+    Vector2D size;
+};
 
-    return result;
-}
+// Generates a random number between two values
+int RandomNumberGenerator(int Min, int Max);
 
 // Constructor function for a Ball
-static Ball BallConstructor(int x, int y)
-{
-    Ball BallResult = {0};
-    BallResult.speed.x = RandomNumberGenerator(1, 4);
-    BallResult.speed.y = RandomNumberGenerator(1, 4);
+Ball BallConstructor(int x, int y);
 
-    if(BallResult.speed.y <= 1 && BallResult.speed.x >= -1)
-    {
-        BallResult.speed.x = 2;
-    }
+// Creates a rectangle from a position and a size:
+SDL_Rect RectFromPositions(Vector2D Position, Vector2D Size);
+// Loading a Texture:
 
-    if(BallResult.speed.y <= 1 && BallResult.speed.y >= -1)
-    {
-        BallResult.speed.y = 2;
-    }
+SDL_Texture *LoadTexture(char *pFileName, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface);
 
-    BallResult.pos.x = x;
-    BallResult.pos.y = y;
-
-    return BallResult;
-}
-
+// Tests whether two objects overlap
+bool TestOverlap(Vector2D Position1, Vector2D Size1, Vector2D Position2, Vector2D Size2);
 
 struct GameState
 {
+    Rect ground;
+    Rect cannonBase;
+    Rect cannonShaft;
+    SDL_Texture *pCannonShaft;
+
+    float angle = 0.0f;
 
     bool running;
-
 };
