@@ -3,6 +3,7 @@
 #include <time.h>
 #include <math.h>
 #include <stdlib.h>
+#include <string>
 
 struct Controls
 {
@@ -46,6 +47,7 @@ struct Ball
 {
     Vector2D pos;
     Vector2D speed;
+    Vector2D size;
 };
 
 struct Rect
@@ -62,12 +64,15 @@ Ball BallConstructor(int x, int y);
 
 // Creates a rectangle from a position and a size:
 SDL_Rect RectFromPositions(Vector2D Position, Vector2D Size);
-// Loading a Texture:
 
+// Loading a Texture:
 SDL_Texture *LoadTexture(char *pFileName, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface);
 
 // Tests whether two objects overlap
 bool TestOverlap(Vector2D Position1, Vector2D Size1, Vector2D Position2, Vector2D Size2);
+
+// Loading SDL PNG Image
+SDL_Surface* loadSurface(std::string path, SDL_Surface *pScreenSurface);
 
 struct GameState
 {
@@ -75,6 +80,10 @@ struct GameState
     Rect cannonBase;
     Rect cannonShaft;
     SDL_Texture *pCannonShaft;
+    Ball aBall;
+    SDL_Texture *pBall;
+
+
 
     float angle = 0.0f;
 

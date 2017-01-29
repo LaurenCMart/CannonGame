@@ -9,6 +9,7 @@
 #include <string>
 #include <Windows.h>
 #include "SDLPlatform.h"
+#include <SDL_image.h>
 
 using namespace::std;
 
@@ -84,13 +85,41 @@ SDL_Texture *LoadTexture(char *pFileName, SDL_Renderer *pRenderer, SDL_Surface *
 
     // SurfaceResult is an SDL Surface Object that points to the result of the LoadImage function
     // LoadImage function loads a bitmap
-    SDL_Surface *SurfaceResult = LoadImage(pFileName, pScreenSurface);
+    //SDL_Surface *SurfaceResult = LoadImage(pFileName, pScreenSurface
+    SDL_Surface *SurfaceResult = loadSurface(pFileName, pScreenSurface);
+
+    /*unsigned int *pixels = (unsigned int *)SurfaceResult->pixels;
+    for(int x = 0; (x < SurfaceResult->w); ++x)
+    {
+        for(int y = 0; (y < SurfaceResult->h); ++y)
+        {
+            char *r = (char *)pixels + 0;
+            char *g = (char *)pixels + 1;
+            char *b = (char *)pixels + 2;
+            char *a = (char *)pixels + 3;
+
+            if(*a < 255)
+            {
+                a = 0;
+            }
+
+            ++pixels;
+        }
+    }*/
 
     // Sets a bitmap background transparent
-    SDL_SetColorKey(SurfaceResult, SDL_TRUE, SDL_MapRGB(SurfaceResult->format, 0xFF, 0xFF, 0xFF));
+    //SDL_SetColorKey(SurfaceResult, SDL_TRUE, SDL_MapRGB(SurfaceResult->format, 0xFF, 0x00, 0x00));
+
+
 
     // Passes the image data to the GPU and gets a handle to it
     Result = SDL_CreateTextureFromSurface(pRenderer, SurfaceResult);
+
+    //Set blending function
+    //SDL_SetTextureBlendMode(Result, SDL_BLENDMODE_BLEND);
+
+    //Modulate texture alpha
+    //SDL_SetTextureAlphaMod(Result, 0);
 
     // Get rid of memory for loaded surface
     SDL_FreeSurface(SurfaceResult);
@@ -140,6 +169,33 @@ Ball BallConstructor(int x, int y)
     return BallResult;
 }
 
+SDL_Surface* loadSurface(std::string path, SDL_Surface *pScreenSurface)
+{
+    //The final optimized image
+    SDL_Surface* optimizedSurface = NULL;
+
+    //Load image at specified path
+    SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+    if(loadedSurface == NULL)
+    {
+        printf("Unable to load image %s! SDL_image Error: %s\n", path.c_str(), IMG_GetError());
+    }
+    else
+    {
+        //Convert surface to screen format
+        optimizedSurface = SDL_ConvertSurface(loadedSurface, pScreenSurface->format, NULL);
+        if(optimizedSurface == NULL)
+        {
+            printf("Unable to optimize image %s! SDL Error: %s\n", path.c_str(), SDL_GetError());
+        }
+
+        //Get rid of old loaded surface
+        SDL_FreeSurface(loadedSurface);
+    }
+
+    return optimizedSurface;
+}
+
 int main(int argc, char **argv)
 {
     // Window stuff
@@ -162,145 +218,153 @@ int main(int argc, char **argv)
         else
         {
             // Otherwise, do all this...
-
-            // Creates a renderer
-            SDL_Renderer *pRenderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);
-
-            // Gets screen surface
-            SDL_Surface *pScreenSurface = SDL_GetWindowSurface(Window);
-
-            // Game Loop
-            GameState *game_state = new GameState();
-            Controls controls = {};
-            bool first_time = true;
-
-            if(!game_state)
+            //Initialize PNG loading
+            int imgFlags = IMG_INIT_PNG;
+            if(!(IMG_Init(imgFlags) & imgFlags))
             {
-                fprintf(stderr, "Failed to allocate gamestate");
+                printf("SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError());
             }
             else
             {
-                memset(game_state, 0, sizeof(GameState));
-                game_state->running = true;
+                // Creates a renderer
+                SDL_Renderer *pRenderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);
 
-                while(game_state->running)
+                // Gets screen surface
+                SDL_Surface *pScreenSurface = SDL_GetWindowSurface(Window);
+
+                // Game Loop
+                GameState *game_state = new GameState();
+                Controls controls = {};
+                bool first_time = true;
+
+                if(!game_state)
                 {
-                    int StartTime = SDL_GetTicks();
-                    int TargetMS = 33;
+                    fprintf(stderr, "Failed to allocate gamestate");
+                }
+                else
+                {
+                    memset(game_state, 0, sizeof(GameState));
+                    game_state->running = true;
 
-                    if(controls.left)
+                    while(game_state->running)
                     {
-                        controls.prev_left = true;
-                    }
-                    else
-                    {
-                        controls.prev_left = false;
-                    }
-                    if(controls.right)
-                    {
-                        controls.prev_right = true;
-                    }
-                    else
-                    {
-                        controls.prev_right = false;
-                    }
-                    if(controls.up)
-                    {
-                        controls.prev_up = true;
-                    }
-                    else
-                    {
-                        controls.prev_up = false;
-                    }
-                    if(controls.down)
-                    {
-                        controls.prev_down = true;
-                    }
-                    else
-                    {
-                        controls.prev_down = false;
-                    }
+                        int StartTime = SDL_GetTicks();
+                        int TargetMS = 33;
 
-                    //controls.left = false; controls.right = false; controls.up = false; controls.down = false;
-
-                    SDL_Event e = {0};
-                    while(SDL_PollEvent(&e) != 0)
-                    {
-                        switch(e.type)
+                        if(controls.left)
                         {
-                            case SDL_QUIT:
-                            {
-                                game_state->running = false;
-
-                            } break;
-
-                            case SDL_KEYDOWN:
-                            {
-                                switch(e.key.keysym.sym)
-                                {
-                                    case 'a': case SDLK_LEFT:
-                                    {
-                                        controls.left = true;
-                                    } break;
-                                    case 'd': case SDLK_RIGHT:
-                                    {
-                                        controls.right = true;
-                                    } break;
-                                    case 'w': case SDLK_UP:
-                                    {
-                                        controls.up = true;
-                                    } break;
-                                    case 's': case SDLK_DOWN:
-                                    {
-                                        controls.down = true;
-                                    } break;
-                                }
-                            } break;
-
-                            case SDL_KEYUP:
-                            {
-                                switch(e.key.keysym.sym)
-                                {
-                                    case 'a': case SDLK_LEFT:
-                                    {
-                                        controls.left = false;
-                                    } break;
-                                    case 'd': case SDLK_RIGHT:
-                                    {
-                                        controls.right = false;
-                                    } break;
-                                    case 'w': case SDLK_UP:
-                                    {
-                                        controls.up = false;
-                                    } break;
-                                    case 's': case SDLK_DOWN:
-                                    {
-                                        controls.down = false;
-                                    } break;
-                                }
-                            } break;
+                            controls.prev_left = true;
                         }
+                        else
+                        {
+                            controls.prev_left = false;
+                        }
+                        if(controls.right)
+                        {
+                            controls.prev_right = true;
+                        }
+                        else
+                        {
+                            controls.prev_right = false;
+                        }
+                        if(controls.up)
+                        {
+                            controls.prev_up = true;
+                        }
+                        else
+                        {
+                            controls.prev_up = false;
+                        }
+                        if(controls.down)
+                        {
+                            controls.prev_down = true;
+                        }
+                        else
+                        {
+                            controls.prev_down = false;
+                        }
+
+                        //controls.left = false; controls.right = false; controls.up = false; controls.down = false;
+
+                        SDL_Event e = {0};
+                        while(SDL_PollEvent(&e) != 0)
+                        {
+                            switch(e.type)
+                            {
+                                case SDL_QUIT:
+                                {
+                                    game_state->running = false;
+
+                                } break;
+
+                                case SDL_KEYDOWN:
+                                {
+                                    switch(e.key.keysym.sym)
+                                    {
+                                        case 'a': case SDLK_LEFT:
+                                        {
+                                            controls.left = true;
+                                        } break;
+                                        case 'd': case SDLK_RIGHT:
+                                        {
+                                            controls.right = true;
+                                        } break;
+                                        case 'w': case SDLK_UP:
+                                        {
+                                            controls.up = true;
+                                        } break;
+                                        case 's': case SDLK_DOWN:
+                                        {
+                                            controls.down = true;
+                                        } break;
+                                    }
+                                } break;
+
+                                case SDL_KEYUP:
+                                {
+                                    switch(e.key.keysym.sym)
+                                    {
+                                        case 'a': case SDLK_LEFT:
+                                        {
+                                            controls.left = false;
+                                        } break;
+                                        case 'd': case SDLK_RIGHT:
+                                        {
+                                            controls.right = false;
+                                        } break;
+                                        case 'w': case SDLK_UP:
+                                        {
+                                            controls.up = false;
+                                        } break;
+                                        case 's': case SDLK_DOWN:
+                                        {
+                                            controls.down = false;
+                                        } break;
+                                    }
+                                } break;
+                            }
+                        }
+                        // Rendering
+                        update_and_render(controls, first_time, game_state, pRenderer, pScreenSurface);
+                        SDL_UpdateWindowSurface(Window);
+                        SDL_RenderPresent(pRenderer);
+
+                        first_time = false;
+
+                        // Fixing frame rate
+                        int EndTime = SDL_GetTicks();
+                        int FrameDelta = EndTime - StartTime;
+                        int TimeToSleep = TargetMS - FrameDelta;
+
+                        if(TimeToSleep > 0)
+                        {
+                            SDL_Delay(TimeToSleep);
+                        }
+
                     }
-                    // Rendering
-                    update_and_render(controls, first_time, game_state, pRenderer, pScreenSurface);
-                    SDL_UpdateWindowSurface(Window);
-                    SDL_RenderPresent(pRenderer);
-                    
-                    first_time = false;
-
-                    // Fixing frame rate
-                    int EndTime = SDL_GetTicks();
-                    int FrameDelta = EndTime - StartTime;
-                    int TimeToSleep = TargetMS - FrameDelta;
-
-                    if(TimeToSleep > 0)
-                    {
-                        SDL_Delay(TimeToSleep);
-                    }
-
                 }
             }
         }
-        return 0;
     }
+        return 0;
 }
