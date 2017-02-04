@@ -10,6 +10,8 @@
 #include <Windows.h>
 #include "SDLPlatform.h"
 #include <SDL_image.h>
+#define SDL_STBIMAGE_IMPLEMENTATION
+#include "SDL_stbimage.h"
 
 using namespace::std;
 
@@ -22,7 +24,8 @@ SDL_Surface *LoadImage(char *path, SDL_Surface *ScreenSurface)
     SDL_Surface *optimizedSurface = NULL;
 
     // Load image at specified path
-    SDL_Surface *loadedSurface = SDL_LoadBMP(path);
+    //SDL_Surface *loadedSurface = SDL_LoadBMP(path);
+    SDL_Surface* loadedSurface = STBIMG_Load(path);
     if(loadedSurface == NULL)
     {
         printf("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
@@ -86,7 +89,7 @@ SDL_Texture *LoadTexture(char *pFileName, SDL_Renderer *pRenderer, SDL_Surface *
     // SurfaceResult is an SDL Surface Object that points to the result of the LoadImage function
     // LoadImage function loads a bitmap
     //SDL_Surface *SurfaceResult = LoadImage(pFileName, pScreenSurface
-    SDL_Surface *SurfaceResult = loadSurface(pFileName, pScreenSurface);
+    SDL_Surface *SurfaceResult = LoadImage(pFileName, pScreenSurface);
 
     /*unsigned int *pixels = (unsigned int *)SurfaceResult->pixels;
     for(int x = 0; (x < SurfaceResult->w); ++x)
@@ -108,7 +111,7 @@ SDL_Texture *LoadTexture(char *pFileName, SDL_Renderer *pRenderer, SDL_Surface *
     }*/
 
     // Sets a bitmap background transparent
-    //SDL_SetColorKey(SurfaceResult, SDL_TRUE, SDL_MapRGB(SurfaceResult->format, 0xFF, 0x00, 0x00));
+    SDL_SetColorKey(SurfaceResult, SDL_TRUE, SDL_MapRGB(SurfaceResult->format, 0xFF, 0x00, 0x00));
 
 
 

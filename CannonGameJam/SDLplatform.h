@@ -65,6 +65,9 @@ Ball BallConstructor(int x, int y);
 // Creates a rectangle from a position and a size:
 SDL_Rect RectFromPositions(Vector2D Position, Vector2D Size);
 
+SDL_Surface *LoadImage(char *path, SDL_Surface *ScreenSurface);
+
+
 // Loading a Texture:
 SDL_Texture *LoadTexture(char *pFileName, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface);
 
