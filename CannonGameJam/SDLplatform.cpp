@@ -67,10 +67,10 @@ bool displayWinMessageBox(const char *message, const char *title)
 SDL_Rect RectFromPositions(Vector2D Position, Vector2D Size)
 {
     SDL_Rect Result;
-    Result.x = Position.x;
-    Result.y = Position.y;
-    Result.w = Size.x;
-    Result.h = Size.y;
+    Result.x = (int)Position.x;
+    Result.y = (int)Position.y;
+    Result.w = (int)Size.x;
+    Result.h = (int)Size.y;
 
     // Returns a Rectangle
     return Result;
@@ -147,29 +147,6 @@ int RandomNumberGenerator(int Min, int Max)
     int result = (Min + (rand() % (Max - Min) + 1));
 
     return result;
-}
-
-// Constructor function for a Ball
-Ball BallConstructor(int x, int y)
-{
-    Ball BallResult = {0};
-    BallResult.speed.x = RandomNumberGenerator(1, 4);
-    BallResult.speed.y = RandomNumberGenerator(1, 4);
-
-    if(BallResult.speed.y <= 1 && BallResult.speed.x >= -1)
-    {
-        BallResult.speed.x = 2;
-    }
-
-    if(BallResult.speed.y <= 1 && BallResult.speed.y >= -1)
-    {
-        BallResult.speed.y = 2;
-    }
-
-    BallResult.pos.x = x;
-    BallResult.pos.y = y;
-
-    return BallResult;
 }
 
 SDL_Surface* loadSurface(std::string path, SDL_Surface *pScreenSurface)
@@ -286,6 +263,14 @@ int main(int argc, char **argv)
                         {
                             controls.prev_down = false;
                         }
+                        if(controls.space)
+                        {
+                            controls.prev_space = true;
+                        }
+                        else
+                        {
+                            controls.prev_space = false;
+                        }
 
                         //controls.left = false; controls.right = false; controls.up = false; controls.down = false;
 
@@ -320,6 +305,10 @@ int main(int argc, char **argv)
                                         {
                                             controls.down = true;
                                         } break;
+                                        case SDLK_SPACE:
+                                        {
+                                            controls.space = true;
+                                        } break;
                                     }
                                 } break;
 
@@ -343,6 +332,10 @@ int main(int argc, char **argv)
                                         {
                                             controls.down = false;
                                         } break;
+                                        case SDLK_SPACE:
+                                        {
+                                            controls.space = false;
+                                        }
                                     }
                                 } break;
                             }

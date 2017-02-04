@@ -16,8 +16,16 @@
 #include "SDLplatform.h"
 #include "assert.h"
 
+float toRadians(float x)
+{
+    float res = x * 0.0174533f; // 1 degree = 0.0174533 radians.
+
+    return res;
+}
+
 void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface)
 {
+
     // Ground Properties
     game_state->ground.pos.x = 0;
     game_state->ground.pos.y = 460;
@@ -35,6 +43,7 @@ void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScre
     game_state->cannonShaft.pos.y = 420;
     game_state->cannonShaft.size.x = 60;
     game_state->cannonShaft.size.y = 20;
+    game_state->cannonShaftAngle = 360.0f;
 
     game_state->pCannonShaft = LoadTexture("CannonShaft.bmp", pRenderer, pScreenSurface);
     // Asserting if it was successfully created
@@ -42,10 +51,13 @@ void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScre
 
     // Ball Properties
     Ball *ball = &game_state->aBall;
-    game_state->aBall.pos.x = 100;
-    game_state->aBall.pos.y = 100;
+    game_state->aBall.pos.x = 30;
+    game_state->aBall.pos.y = 420;
     game_state->aBall.size.x = 24;
     game_state->aBall.size.y = 24;
+    //game_state->aBall.speed = 0.1f;
+    game_state->canShoot = true;
+
 
     game_state->pBall = LoadTexture("BreakoutBall.png", pRenderer, pScreenSurface);
     // Asserting if it was successfully created
@@ -62,20 +74,38 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
 
     if(controls.up)
     {
-        game_state->angle -= 10;
+        game_state->cannonShaftAngle -= 10;
     }
     else if(controls.down)
     {
-        game_state->angle += 10;
+        game_state->cannonShaftAngle += 10;
     }
 
-    if(game_state->angle < 270)
+    if(game_state->cannonShaftAngle < 270)
     {
-        game_state->angle = 270;
+        game_state->cannonShaftAngle = 270;
     }
-    else if(game_state->angle > 360)
+    else if(game_state->cannonShaftAngle < 0)
     {
-        game_state->angle = 360;
+        game_state->cannonShaftAngle = 0;
+    }
+
+    // Ball Movement
+    if(controls.space && game_state->canShoot)
+    {
+        game_state->canShoot = false;
+        game_state->aBall.speed = 1.0f;
+
+    }
+
+    if(game_state->aBall.speed > 0)
+    {
+        float deltaX = cosf(toRadians(game_state->cannonShaftAngle)) * game_state->aBall.speed;
+        float deltaY = sinf(toRadians(game_state->cannonShaftAngle))  * game_state->aBall.speed;
+
+        game_state->aBall.pos.x += deltaX;
+        game_state->aBall.pos.y += deltaY;
+
     }
 
     // Change BG colour
@@ -88,23 +118,26 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
     SDL_Rect GroundRect = RectFromPositions(game_state->ground.pos, game_state->ground.size);
     SDL_SetRenderDrawColor(pRenderer, 0xF9, 0xB8, 0x1F, 0x00);
     SDL_RenderFillRect(pRenderer, &GroundRect);
+    
+    // Drawing Ball
+    SDL_Rect cannonBallRect = RectFromPositions(game_state->aBall.pos, game_state->aBall.size);
+    //SDL_SetRenderDrawColor(pRenderer, 0xFF, 0x00, 0x00, 0x00);
+    //SDL_BlitSurface(game_state->pBall, NULL, pScreenSurface, &cannonBallRect);
+    SDL_RenderCopy(pRenderer, game_state->pBall, NULL, &cannonBallRect);
 
     // Drawing Cannon Shaft
     SDL_Rect cannonShaftRect = RectFromPositions(game_state->cannonShaft.pos, game_state->cannonShaft.size);
     SDL_SetRenderDrawColor(pRenderer, 0xFF, 0x00, 0x00, 0x00);
     SDL_Point centerPt = {5, 10};
-    SDL_RenderCopyEx(pRenderer, game_state->pCannonShaft, NULL, &cannonShaftRect, game_state->angle, &centerPt, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(pRenderer, game_state->pCannonShaft, NULL, &cannonShaftRect, game_state->cannonShaftAngle, &centerPt, SDL_FLIP_NONE);
 
     // Drawing Cannon Base
     SDL_Rect cannonBaseRect = RectFromPositions(game_state->cannonBase.pos, game_state->cannonBase.size);
     SDL_SetRenderDrawColor(pRenderer, 0xF9, 0x00, 0x1F, 0x00);
     SDL_RenderFillRect(pRenderer, &cannonBaseRect);
 
-    // Drawing Ball
-    SDL_Rect cannonBallRect = RectFromPositions(game_state->aBall.pos, game_state->aBall.size);
-    //SDL_SetRenderDrawColor(pRenderer, 0xFF, 0x00, 0x00, 0x00);
-    //SDL_BlitSurface(game_state->pBall, NULL, pScreenSurface, &cannonBallRect);
-    SDL_RenderCopy(pRenderer, game_state->pBall, NULL, &cannonBallRect);
+
+
 
 
 }

@@ -18,6 +18,10 @@ struct Controls
 
     bool down;
     bool prev_down;
+
+    bool space;
+    bool prev_space;
+
 };
 
 struct GameState;
@@ -25,10 +29,10 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
 
 struct Vector2D
 {
-    int x, y;
+    float x, y;
 };
 
-static Vector2D V2Constructor(int x, int y)
+static Vector2D V2Constructor(float x, float y)
 {
     Vector2D result = {x, y};
 
@@ -46,7 +50,7 @@ struct Block
 struct Ball
 {
     Vector2D pos;
-    Vector2D speed;
+    float speed;
     Vector2D size;
 };
 
@@ -85,10 +89,7 @@ struct GameState
     SDL_Texture *pCannonShaft;
     Ball aBall;
     SDL_Texture *pBall;
-
-
-
-    float angle = 0.0f;
-
+    float cannonShaftAngle;
+    bool canShoot;
     bool running;
 };
