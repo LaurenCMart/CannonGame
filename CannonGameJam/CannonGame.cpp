@@ -23,6 +23,14 @@ float toRadians(float x)
     return res;
 }
 
+void resetBallPos(Ball *ball, Vector2D pos)
+{
+    ball->pos = pos;
+    ball->speed = 0.0f;
+    ball->velocityY = 0.0f;
+    ball->canShoot = true;
+}
+
 void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface)
 {
 
@@ -57,12 +65,11 @@ void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScre
 
 
     // Ball Properties
-    Ball *ball = &game_state->aBall;
     game_state->aBall.pos.x = 30;
     game_state->aBall.pos.y = 420;
     game_state->aBall.size.x = 24;
     game_state->aBall.size.y = 24;
-    game_state->canShoot = true;
+    game_state->aBall.canShoot = true;
 
 
     game_state->pBall = LoadTexture("BreakoutBall.png", pRenderer, pScreenSurface);
@@ -84,10 +91,18 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
 
     if(TestOverlap(game_state->aBall.pos, ballSize, game_state->wall.pos, wallSize))
     {
-        game_state->aBall.angle += 180.0f;
-        game_state->aBall.pos = game_state->cannonShaft.pos;
-        game_state->aBall.speed = 0.0f;
-        game_state->canShoot = true;
+        resetBallPos(&game_state->aBall, game_state->cannonShaft.pos);
+    }
+
+    // Reseting Ball position when it flies off the sides.
+    if(game_state->aBall.pos.x > 640 || game_state->aBall.pos.x < 0)
+    {
+        resetBallPos(&game_state->aBall, game_state->cannonShaft.pos);
+    }
+
+    if(game_state->aBall.pos.y > 480 || game_state->aBall.pos.y < 0)
+    {
+        resetBallPos(&game_state->aBall, game_state->cannonShaft.pos);
     }
 
     // Moving Cannon Shaft
@@ -111,9 +126,9 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
     }
 
     // Ball Movement
-    if(controls.space && game_state->canShoot)
+    if(controls.space && game_state->aBall.canShoot)
     {
-        game_state->canShoot = false;
+        game_state->aBall.canShoot = false;
         game_state->aBall.speed = 5.0f;
         game_state->aBall.angle = game_state->cannonShaftAngle;
 
@@ -126,8 +141,16 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
 
         game_state->aBall.pos.x += deltaX;
         game_state->aBall.pos.y += deltaY;
-
+        
+        // Ball Gravity
+        float dt = 0.08f;
+        float acceleration = 9.8f;
+        game_state->aBall.velocityY += acceleration * dt;
+        game_state->aBall.pos.y += game_state->aBall.velocityY * dt;
     }
+
+
+
 
     // Change BG colour
     SDL_SetRenderDrawColor(pRenderer, 0x66, 0x00, 0x66, 0xFF);

@@ -62,6 +62,8 @@ struct Ball
     float speed;
     Vector2D size;
     float angle;
+    float velocityY;
+    bool canShoot;
 };
 
 struct Rect
@@ -100,7 +102,6 @@ struct GameState
     Ball aBall;
     SDL_Texture *pBall;
     float cannonShaftAngle;
-    bool canShoot;
     Rect wall;
 
     bool running;

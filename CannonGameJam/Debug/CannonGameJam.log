@@ -1,8 +1,9 @@
-﻿Build started 04/02/2017 19:00:24.
+﻿Build started 04/02/2017 21:06:38.
      1>Project "C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\CannonGameJam\CannonGameJam.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc140.pdb" /Gd /TP /analyze- /errorReport:prompt CannonGame.cpp
          CannonGame.cpp
+     1>cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\Debug\CannonGameJam.exe" /INCREMENTAL /NOLOGO SDL2.lib SDL2main.lib SDL2_image.lib SDL2_mixer.lib SDL2_ttf.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\Debug\CannonGameJam.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Lauren\Documents\1_Programming Projects\C++\Personal Projects\CannonGameJam\Debug\CannonGameJam.lib" /MACHINE:X86 Debug\CannonGame.obj
          Debug\SDLplatform.obj
@@ -12,4 +13,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.74
+Time Elapsed 00:00:01.68
