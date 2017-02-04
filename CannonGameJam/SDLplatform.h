@@ -39,6 +39,15 @@ static Vector2D V2Constructor(float x, float y)
     return(result);
 }
 
+static Vector2D V2Add(Vector2D a, Vector2D b)
+{
+    Vector2D result;
+    result.x = a.x + b.x;
+    result.y = a.y + b.y;
+
+    return(result);
+}
+
 // Put your stuff here!
 
 struct Block
@@ -52,6 +61,7 @@ struct Ball
     Vector2D pos;
     float speed;
     Vector2D size;
+    float angle;
 };
 
 struct Rect
@@ -91,5 +101,7 @@ struct GameState
     SDL_Texture *pBall;
     float cannonShaftAngle;
     bool canShoot;
+    Rect wall;
+
     bool running;
 };
