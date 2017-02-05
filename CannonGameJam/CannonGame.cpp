@@ -63,18 +63,28 @@ void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScre
     game_state->wall.size.x = 20;
     game_state->wall.size.y = 220;
 
+    // Target Properties
+    game_state->target.pos.x = 500;
+    game_state->target.pos.y = 300;
+    game_state->target.size.x = 24;
+    game_state->target.size.y = 24;
+    game_state->renderTarget = true;
+
+    game_state->pTarget = LoadTexture("BreakoutBall.png", pRenderer, pScreenSurface);
+    // Asserting if it was successfully created
+    assert(game_state->pTarget);
 
     // Ball Properties
-    game_state->aBall.pos.x = 30;
-    game_state->aBall.pos.y = 420;
-    game_state->aBall.size.x = 24;
-    game_state->aBall.size.y = 24;
-    game_state->aBall.canShoot = true;
+    game_state->cannonBall.pos.x = 30;
+    game_state->cannonBall.pos.y = 420;
+    game_state->cannonBall.size.x = 24;
+    game_state->cannonBall.size.y = 24;
+    game_state->cannonBall.canShoot = true;
 
 
-    game_state->pBall = LoadTexture("BreakoutBall.png", pRenderer, pScreenSurface);
+    game_state->pCannonBall = LoadTexture("BreakoutBall.png", pRenderer, pScreenSurface);
     // Asserting if it was successfully created
-    assert(game_state->pBall);
+    assert(game_state->pCannonBall);
 
 }
 
@@ -86,23 +96,32 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
     }
 
     // Collision of Ball and Wall
-    Vector2D ballSize = V2Constructor(game_state->aBall.size.x, game_state->aBall.size.y);
+    Vector2D ballSize = V2Constructor(game_state->cannonBall.size.x, game_state->cannonBall.size.y);
     Vector2D wallSize = V2Constructor(game_state->wall.size.x, game_state->wall.size.y);
+    Vector2D targetSize = V2Constructor(game_state->target.size.x, game_state->wall.size.y);
 
-    if(TestOverlap(game_state->aBall.pos, ballSize, game_state->wall.pos, wallSize))
+    if(TestOverlap(game_state->cannonBall.pos, ballSize, game_state->wall.pos, wallSize))
     {
-        resetBallPos(&game_state->aBall, game_state->cannonShaft.pos);
+        resetBallPos(&game_state->cannonBall, game_state->cannonShaft.pos);
+    }
+
+    // Collision of Ball and Target
+    if(TestOverlap(game_state->cannonBall.pos, ballSize, game_state->target.pos, targetSize))
+    {
+        game_state->renderTarget = false;
     }
 
     // Reseting Ball position when it flies off the sides.
-    if(game_state->aBall.pos.x > 640 || game_state->aBall.pos.x < 0)
+    if(game_state->cannonBall.pos.x > 640 || game_state->cannonBall.pos.x < 0)
     {
-        resetBallPos(&game_state->aBall, game_state->cannonShaft.pos);
+        resetBallPos(&game_state->cannonBall, game_state->cannonShaft.pos);
+        game_state->renderTarget = true;
     }
 
-    if(game_state->aBall.pos.y > 480 || game_state->aBall.pos.y < 0)
+    if(game_state->cannonBall.pos.y > 480 || game_state->cannonBall.pos.y < 0)
     {
-        resetBallPos(&game_state->aBall, game_state->cannonShaft.pos);
+        resetBallPos(&game_state->cannonBall, game_state->cannonShaft.pos);
+        game_state->renderTarget = true;
     }
 
     // Moving Cannon Shaft
@@ -126,31 +145,28 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
     }
 
     // Ball Movement
-    if(controls.space && game_state->aBall.canShoot)
+    if(controls.space && game_state->cannonBall.canShoot)
     {
-        game_state->aBall.canShoot = false;
-        game_state->aBall.speed = 5.0f;
-        game_state->aBall.angle = game_state->cannonShaftAngle;
+        game_state->cannonBall.canShoot = false;
+        game_state->cannonBall.speed = 20.0f;/*5.0*/
+        game_state->cannonBall.angle = game_state->cannonShaftAngle;
 
     }
 
-    if(game_state->aBall.speed > 0)
+    if(game_state->cannonBall.speed > 0)
     {
-        float deltaX = cosf(toRadians(game_state->aBall.angle)) * game_state->aBall.speed;
-        float deltaY = sinf(toRadians(game_state->aBall.angle))  * game_state->aBall.speed;
+        float deltaX = cosf(toRadians(game_state->cannonBall.angle)) * game_state->cannonBall.speed;
+        float deltaY = sinf(toRadians(game_state->cannonBall.angle))  * game_state->cannonBall.speed;
 
-        game_state->aBall.pos.x += deltaX;
-        game_state->aBall.pos.y += deltaY;
+        game_state->cannonBall.pos.x += deltaX;
+        game_state->cannonBall.pos.y += deltaY;
         
         // Ball Gravity
-        float dt = 0.08f;
+        float dt = 0.26f;/*0.08f*/
         float acceleration = 9.8f;
-        game_state->aBall.velocityY += acceleration * dt;
-        game_state->aBall.pos.y += game_state->aBall.velocityY * dt;
+        game_state->cannonBall.velocityY += acceleration * dt;
+        game_state->cannonBall.pos.y += game_state->cannonBall.velocityY * dt;
     }
-
-
-
 
     // Change BG colour
     SDL_SetRenderDrawColor(pRenderer, 0x66, 0x00, 0x66, 0xFF);
@@ -158,17 +174,20 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
     // Clear Screen
     SDL_RenderClear(pRenderer);
 
-    // Drawing Ground
-    SDL_Rect GroundRect = RectFromPositions(game_state->ground.pos, game_state->ground.size);
-    SDL_SetRenderDrawColor(pRenderer, 0xF9, 0xB8, 0x1F, 0x00);
-    SDL_RenderFillRect(pRenderer, &GroundRect);
-
+    if(game_state->renderTarget)
+    {
+        // Drawing Target
+        SDL_Rect targetRect = RectFromPositions(game_state->target.pos, game_state->target.size);
+        //SDL_SetRenderDrawColor(pRenderer, 0x66, 0x00, 0x66, 0xFF);
+        //SDL_BlitSurface(game_state->pBall, NULL, pScreenSurface, &cannonBallRect);
+        SDL_RenderCopy(pRenderer, game_state->pTarget, NULL, &targetRect);
+    }
     
     // Drawing Ball
-    SDL_Rect cannonBallRect = RectFromPositions(game_state->aBall.pos, game_state->aBall.size);
-    //SDL_SetRenderDrawColor(pRenderer, 0xFF, 0x00, 0x00, 0x00);
+    SDL_Rect cannonBallRect = RectFromPositions(game_state->cannonBall.pos, game_state->cannonBall.size);
+    //SDL_SetRenderDrawColor(pRenderer, 0x66, 0x00, 0x66, 0xFF);
     //SDL_BlitSurface(game_state->pBall, NULL, pScreenSurface, &cannonBallRect);
-    SDL_RenderCopy(pRenderer, game_state->pBall, NULL, &cannonBallRect);
+    SDL_RenderCopy(pRenderer, game_state->pCannonBall, NULL, &cannonBallRect);
 
     // Drawing Cannon Shaft
     SDL_Rect cannonShaftRect = RectFromPositions(game_state->cannonShaft.pos, game_state->cannonShaft.size);
@@ -186,7 +205,10 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
     SDL_SetRenderDrawColor(pRenderer, 0xFF, 0x08, 0xFF, 0x00);
     SDL_RenderFillRect(pRenderer, &wallRect);
 
-
+    // Drawing Ground
+    SDL_Rect GroundRect = RectFromPositions(game_state->ground.pos, game_state->ground.size);
+    SDL_SetRenderDrawColor(pRenderer, 0xF9, 0xB8, 0x1F, 0x00);
+    SDL_RenderFillRect(pRenderer, &GroundRect);
 
 
 }

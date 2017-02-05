@@ -99,10 +99,12 @@ struct GameState
     Rect cannonBase;
     Rect cannonShaft;
     SDL_Texture *pCannonShaft;
-    Ball aBall;
-    SDL_Texture *pBall;
+    Ball cannonBall;
+    SDL_Texture *pCannonBall;
     float cannonShaftAngle;
     Rect wall;
-
+    Ball target;
+    SDL_Texture *pTarget;
+    bool renderTarget;
     bool running;
 };
