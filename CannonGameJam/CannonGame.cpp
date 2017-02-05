@@ -33,6 +33,7 @@ void resetBallPos(Ball *ball, Vector2D pos)
 
 void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface)
 {
+    game_state->lifeCount = 3;
 
     // Ground Properties
     game_state->ground.pos.x = 0;
@@ -81,11 +82,28 @@ void initGame(GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScre
     game_state->cannonBall.size.y = 24;
     game_state->cannonBall.canShoot = true;
 
-
     game_state->pCannonBall = LoadTexture("BreakoutBall.png", pRenderer, pScreenSurface);
     // Asserting if it was successfully created
     assert(game_state->pCannonBall);
 
+    // Life Textures
+    game_state->pLife = LoadTexture("Life.png", pRenderer, pScreenSurface);
+    // Asserting if it was successfully created
+    assert(game_state->pLife);
+
+    game_state->pLostLife = LoadTexture("LifeLost.png", pRenderer, pScreenSurface);
+    // Asserting if it was successfully created
+    assert(game_state->pLostLife);
+
+    // Lives
+    for(int i = 0; i < 3; i++)
+    {
+        game_state->lives[i].pos.y = 20.0f;
+        game_state->lives[i].pos.x = (float)((30 * i) + 20);
+        game_state->lives[i].size.x = 20.0f;
+        game_state->lives[i].size.y = 20.0f;
+    }
+    
 }
 
 void update_and_render(Controls controls, bool init, GameState *game_state, SDL_Renderer *pRenderer, SDL_Surface *pScreenSurface)
@@ -115,12 +133,14 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
     if(game_state->cannonBall.pos.x > 640 || game_state->cannonBall.pos.x < 0)
     {
         resetBallPos(&game_state->cannonBall, game_state->cannonShaft.pos);
+        game_state->lifeCount--;
         game_state->renderTarget = true;
     }
 
     if(game_state->cannonBall.pos.y > 480 || game_state->cannonBall.pos.y < 0)
     {
         resetBallPos(&game_state->cannonBall, game_state->cannonShaft.pos);
+        game_state->lifeCount--;
         game_state->renderTarget = true;
     }
 
@@ -210,6 +230,25 @@ void update_and_render(Controls controls, bool init, GameState *game_state, SDL_
     SDL_SetRenderDrawColor(pRenderer, 0xF9, 0xB8, 0x1F, 0x00);
     SDL_RenderFillRect(pRenderer, &GroundRect);
 
+    // Life Sprites
+    for(int i = 2; i >= 0; --i)
+    {
+        int inverseLifeCount = 3 - game_state->lifeCount;
+        if(i >= inverseLifeCount)
+        {
+            SDL_Rect lifeRect = RectFromPositions(game_state->lives[i].pos, game_state->lives[i].size);
+            //SDL_SetRenderDrawColor(pRenderer, 0x66, 0x00, 0x66, 0xFF);
+            //SDL_BlitSurface(game_state->pBall, NULL, pScreenSurface, &cannonBallRect);
+            SDL_RenderCopy(pRenderer, game_state->pLife, NULL, &lifeRect);
+        }
+        else
+        {
+            SDL_Rect lostLifeRect = RectFromPositions(game_state->lives[i].pos, game_state->lives[i].size);
+            //SDL_SetRenderDrawColor(pRenderer, 0x66, 0x00, 0x66, 0xFF);
+            //SDL_BlitSurface(game_state->pBall, NULL, pScreenSurface, &cannonBallRect);
+            SDL_RenderCopy(pRenderer, game_state->pLife, NULL, &lostLifeRect);
+        }
+    }
 
 }
 

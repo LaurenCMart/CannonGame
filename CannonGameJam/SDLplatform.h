@@ -72,6 +72,12 @@ struct Rect
     Vector2D size;
 };
 
+struct Life
+{
+    Vector2D pos;
+    Vector2D size;
+};
+
 // Generates a random number between two values
 int RandomNumberGenerator(int Min, int Max);
 
@@ -96,15 +102,27 @@ SDL_Surface* loadSurface(std::string path, SDL_Surface *pScreenSurface);
 struct GameState
 {
     Rect ground;
+
     Rect cannonBase;
     Rect cannonShaft;
     SDL_Texture *pCannonShaft;
+    float cannonShaftAngle;
+
     Ball cannonBall;
     SDL_Texture *pCannonBall;
-    float cannonShaftAngle;
+
     Rect wall;
+
     Ball target;
     SDL_Texture *pTarget;
     bool renderTarget;
+
+    Life lives[3];
+    SDL_Texture *pLife;
+    SDL_Texture *pLostLife;
+
+    int lifeCount;
+
+
     bool running;
 };
